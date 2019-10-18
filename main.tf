@@ -215,6 +215,7 @@ resource "aws_ecs_service" "ignore_changes_task_definition" {
   propagate_tags                     = var.propagate_tags
   cluster                            = var.ecs_cluster_arn
   tags                               = module.default_label.tags
+  load_balancer                      = var.ecs_load_balancers
 
   deployment_controller {
     type = var.deployment_controller_type
@@ -224,12 +225,6 @@ resource "aws_ecs_service" "ignore_changes_task_definition" {
     security_groups  = compact(concat(var.security_group_ids, [aws_security_group.ecs_service.id]))
     subnets          = var.subnet_ids
     assign_public_ip = var.assign_public_ip
-  }
-
-  load_balancer {
-    target_group_arn = var.alb_target_group_arn
-    container_name   = var.container_name
-    container_port   = var.container_port
   }
 
   lifecycle {
@@ -249,6 +244,7 @@ resource "aws_ecs_service" "default" {
   propagate_tags                     = var.propagate_tags
   cluster                            = var.ecs_cluster_arn
   tags                               = module.default_label.tags
+  load_balancer                      = var.ecs_load_balancers
 
   deployment_controller {
     type = var.deployment_controller_type
@@ -258,12 +254,6 @@ resource "aws_ecs_service" "default" {
     security_groups  = compact(concat(var.security_group_ids, [aws_security_group.ecs_service.id]))
     subnets          = var.subnet_ids
     assign_public_ip = var.assign_public_ip
-  }
-
-  load_balancer {
-    target_group_arn = var.alb_target_group_arn
-    container_name   = var.container_name
-    container_port   = var.container_port
   }
 }
 
