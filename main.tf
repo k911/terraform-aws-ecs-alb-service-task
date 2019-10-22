@@ -1,5 +1,5 @@
 module "default_label" {
-  source     = "git::https://github.com/cloudposse/terraform-terraform-label.git?ref=0.4.0"
+  source     = "git::https://github.com/cloudposse/terraform-terraform-label.git?ref=tags/0.4.0"
   attributes = var.attributes
   delimiter  = var.delimiter
   name       = var.name
@@ -9,7 +9,7 @@ module "default_label" {
 }
 
 module "task_label" {
-  source     = "git::https://github.com/cloudposse/terraform-terraform-label.git?ref=0.4.0"
+  source     = "git::https://github.com/cloudposse/terraform-terraform-label.git?ref=tags/0.4.0"
   attributes = compact(concat(var.attributes, ["task"]))
   delimiter  = var.delimiter
   name       = var.name
@@ -19,7 +19,7 @@ module "task_label" {
 }
 
 module "service_label" {
-  source     = "git::https://github.com/cloudposse/terraform-terraform-label.git?ref=0.4.0"
+  source     = "git::https://github.com/cloudposse/terraform-terraform-label.git?ref=tags/0.4.0"
   attributes = compact(concat(var.attributes, ["service"]))
   delimiter  = var.delimiter
   name       = var.name
@@ -29,7 +29,7 @@ module "service_label" {
 }
 
 module "exec_label" {
-  source     = "git::https://github.com/cloudposse/terraform-terraform-label.git?ref=0.4.0"
+  source     = "git::https://github.com/cloudposse/terraform-terraform-label.git?ref=tags/0.4.0"
   attributes = compact(concat(var.attributes, ["exec"]))
   delimiter  = var.delimiter
   name       = var.name
@@ -51,7 +51,6 @@ resource "aws_ecs_task_definition" "default" {
   dynamic "volume" {
     for_each = var.volumes
     content {
-
       host_path = lookup(volume.value, "host_path", null)
       name      = volume.value.name
 
@@ -212,10 +211,18 @@ resource "aws_ecs_service" "ignore_changes_task_definition" {
   deployment_minimum_healthy_percent = var.deployment_minimum_healthy_percent
   health_check_grace_period_seconds  = var.health_check_grace_period_seconds
   launch_type                        = var.launch_type
-  propagate_tags                     = var.propagate_tags
-  cluster                            = var.ecs_cluster_arn
-  tags                               = module.default_label.tags
-  load_balancer                      = var.ecs_load_balancers
+  dynamic "load_balancer" {
+    for_each = var.ecs_load_balancers
+    content {
+      container_name   = load_balancer.value.container_name
+      container_port   = load_balancer.value.container_port
+      elb_name         = lookup(load_balancer.value, "elb_name", null)
+      target_group_arn = lookup(load_balancer.value, "target_group_arn", null)
+    }
+  }
+  cluster        = var.ecs_cluster_arn
+  propagate_tags = var.propagate_tags
+  tags           = module.default_label.tags
 
   deployment_controller {
     type = var.deployment_controller_type
@@ -241,10 +248,18 @@ resource "aws_ecs_service" "default" {
   deployment_minimum_healthy_percent = var.deployment_minimum_healthy_percent
   health_check_grace_period_seconds  = var.health_check_grace_period_seconds
   launch_type                        = var.launch_type
-  propagate_tags                     = var.propagate_tags
-  cluster                            = var.ecs_cluster_arn
-  tags                               = module.default_label.tags
-  load_balancer                      = var.ecs_load_balancers
+  dynamic "load_balancer" {
+    for_each = var.ecs_load_balancers
+    content {
+      container_name   = load_balancer.value.container_name
+      container_port   = load_balancer.value.container_port
+      elb_name         = lookup(load_balancer.value, "elb_name", null)
+      target_group_arn = lookup(load_balancer.value, "target_group_arn", null)
+    }
+  }
+  cluster        = var.ecs_cluster_arn
+  propagate_tags = var.propagate_tags
+  tags           = module.default_label.tags
 
   deployment_controller {
     type = var.deployment_controller_type

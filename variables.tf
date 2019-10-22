@@ -48,12 +48,12 @@ variable "ecs_cluster_arn" {
 
 variable "ecs_load_balancers" {
   default     = []
-  type        = "list"
+  type        = list(map(any))
   description = "A list of load balancer config objects for the ECS service; see `load_balancer` docs https://www.terraform.io/docs/providers/aws/r/ecs_service.html"
 }
 
 variable "container_definition_json" {
-  type        = "string"
+  type        = string
   description = "The JSON of the task container definition"
 }
 
@@ -143,3 +143,4 @@ variable "propagate_tags" {
   default     = ""
   description = "Specifies whether to propagate the tags from the task definition or the service to the tasks. The valid values are SERVICE and TASK_DEFINITION."
 }
+
